@@ -1,6 +1,8 @@
 from pathlib import Path
 from fastapi import UploadFile
 
+from backend.app.parsers.pdf_parser import extract_text
+
 UPLOAD_DIR = Path("backend/uploads")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -11,7 +13,11 @@ def save_pdf(file: UploadFile):
     with open(file_path, "wb") as buffer:
         buffer.write(file.file.read())
 
+    extracted_text = extract_text(str(file_path))
+
     return {
         "filename": file.filename,
-        "status": "uploaded successfully"
+        "status": "uploaded successfully",
+        "characters": len(extracted_text),
+        "preview": extracted_text[:500]
     }
