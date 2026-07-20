@@ -2,7 +2,7 @@ from pathlib import Path
 from fastapi import UploadFile
 
 from backend.app.parsers.pdf_parser import extract_text
-
+from backend.app.rag.text_chunker import chunk_text
 UPLOAD_DIR = Path("backend/uploads")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -14,10 +14,12 @@ def save_pdf(file: UploadFile):
         buffer.write(file.file.read())
 
     extracted_text = extract_text(str(file_path))
+    chunks = chunk_text(extracted_text)
 
     return {
         "filename": file.filename,
         "status": "uploaded successfully",
         "characters": len(extracted_text),
-        "preview": extracted_text[:500]
+        "chunks": len(chunks),
+        "preview": chunks[0] if chunks else ""
     }
